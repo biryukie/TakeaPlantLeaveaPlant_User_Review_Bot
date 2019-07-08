@@ -51,10 +51,16 @@ def GET_USER_INFO(username):
 		#print("{" + ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1] + "}")
 		numOfReviews += 1
 
-	print("USER [" + username + "] has [" + str(len(reviews)) + "] reviews")
+	print("USER [" + username + "] HAS [" + str(len(reviews)) + "] REVIEWS")
 
 	# calculate average
-	# to do
+	rating = 0
+	for review in reviews:
+		rating += int(review)
+	
+	rating /= len(reviews)
+
+	print("USER [" + username + "] HAS RATING [" + (str(int(rating)) if rating.is_integer() else str(round(rating, 2))) + "]")
 
 def INSERT_AFTER(keyword, value):
 	f = open("test.txt", "r")
@@ -85,7 +91,13 @@ def main():
 	#FILE_READING()
 	#INSERT_AFTER("banana", "peach")
 	GET_USER_INFO("CatTut")
-	print("GOODBYE!")
+	while True:
+		name = input("Enter a name: ")
+		if name != "":
+			GET_USER_INFO(name)
+		else:
+			break
+	print("Exiting main! Goodbye!")
 
 if __name__ == "__main__":
     main()
