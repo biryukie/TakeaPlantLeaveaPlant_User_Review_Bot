@@ -26,21 +26,35 @@ def GET_USER_INFO(username):
 			break
 
 	if userFound is False:
-		print("USER [ " + username + " ] NOT FOUND")
+		print("USER [" + username + "] NOT FOUND")
 		return
 	
 	rating = contents[i + 1].rstrip()
 	rating = rating.replace("#", "")
 
-	print("USER [ " + username + " ] HAS RATING [ " + rating + " ]")
+	print("USER [" + username + "] HAS RATING [" + rating + "]")
 
 	# get the first review column
-	firstReview = contents[i + 4].strip()
-	print(firstReview)
-	firstReview.replace(" ", "")
-	print(firstReview)
+	firstReviewIndex = i + 4
+	firstReview = contents[firstReviewIndex].strip()
+	firstReview = firstReview.replace(" ", "")
+	#print(firstReview)
 	ratingNum = list(filter(None, firstReview.split("|")))[0]
-	print("Rating is: " + ratingNum)
+	#print("Rating is [" + ratingNum + "]")
+
+	# find the last review, get how many reviews total
+	reviews = list()
+	numOfReviews = 0
+	while contents[firstReviewIndex + numOfReviews].find("|") != -1:
+		#print(contents[firstReviewIndex + numOfReviews])
+		reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])
+		#print("{" + ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1] + "}")
+		numOfReviews += 1
+
+	print("USER [" + username + "] has [" + str(len(reviews)) + "] reviews")
+
+	# calculate average
+	# to do
 
 def INSERT_AFTER(keyword, value):
 	f = open("test.txt", "r")
@@ -69,7 +83,7 @@ def INSERT_AFTER(keyword, value):
 def main():
 	print("Starting main!")
 	#FILE_READING()
-	INSERT_AFTER("banana", "peach")
+	#INSERT_AFTER("banana", "peach")
 	GET_USER_INFO("CatTut")
 	print("GOODBYE!")
 
