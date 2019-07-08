@@ -13,18 +13,34 @@ def FILE_READING():
 
 	print()
 
-def APPEND_DATA():
-	f = open("test.txt", "r")
+def GET_USER_INFO(username):
+	f = open("userDirectory.txt", "r")
 	contents = f.readlines()
-	f.close()
+	userFound = False;
 
-	#contents.insert(index, value)
-	contents.insert(1, "peach\n")
+	# find username
+	for i in range(len(contents)):
+		if username in contents[i]:
+			print(username + " in position " + str(i)) 
+			userFound = True
+			break
 
-	f = open("test.txt", "w")
-	contents = "".join(contents)
-	f.write(contents)
-	f.close()
+	if userFound is False:
+		print("USER [ " + username + " ] NOT FOUND")
+		return
+	
+	rating = contents[i + 1].rstrip()
+	rating = rating.replace("#", "")
+
+	print("USER [ " + username + " ] HAS RATING [ " + rating + " ]")
+
+	# get the first review column
+	firstReview = contents[i + 4].strip()
+	print(firstReview)
+	firstReview.replace(" ", "")
+	print(firstReview)
+	ratingNum = list(filter(None, firstReview.split("|")))[0]
+	print("Rating is: " + ratingNum)
 
 def INSERT_AFTER(keyword, value):
 	f = open("test.txt", "r")
@@ -45,15 +61,16 @@ def INSERT_AFTER(keyword, value):
 
 	contents.insert(i + 1, value + "\n")
 
-	f = open("test.txt", "w")
+	f = open("test.txt", "wb")
 	contents = "".join(contents)
-	f.write(contents)
+	f.write(contents.encode("utf-8"))
 	f.close()
 
 def main():
 	print("Starting main!")
 	#FILE_READING()
 	INSERT_AFTER("banana", "peach")
+	GET_USER_INFO("CatTut")
 	print("GOODBYE!")
 
 if __name__ == "__main__":
