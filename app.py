@@ -28,38 +28,42 @@ def GET_USER_INFO(username):
 			userFound = True
 			break
 		# stop once we go past potential usernames
-		if lessThan(("##" + username), contents[i].strip()):
+		if LESS_THAN(("##" + username), contents[i].strip()):
 			print(("##" + username) + " is less than " + contents[i].strip())
 			break
 
+	reviews = list()
+
 	if userFound:
-		print("we found the user yay.")
+		ratingIndex = i + 1
+
+		# get the first review column
+		firstReviewIndex = i + 4
+		firstReview = contents[firstReviewIndex].strip()
+		firstReview = firstReview.replace(" ", "")
+		#print(firstReview)
+		ratingNum = list(filter(None, firstReview.split("|")))[0]
+		#print("Rating is [" + ratingNum + "]")
+
+		# find the last review, get how many reviews total
+		numOfReviews = 0
+
+		while contents[firstReviewIndex + numOfReviews].find("|") != -1:
+			#print(contents[firstReviewIndex + numOfReviews])
+			reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])
+			#print("{" + ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1] + "}")
+			numOfReviews += 1
+		
+		insertionIndex = firstReviewIndex + len(reviews)
+		print("insert new row at index " + str(insertionIndex))
 
 	if not userFound:
 		print("USER [" + username + "] NOT FOUND")
 		print("we're at index " + str(i))
 		# to do
 		# find the place where to create a section for the new user
+		# note! subtract 1 from the "i" value we find. otherwise we're on the username for the next thing.
 		return
-	
-	ratingIndex = i + 1
-
-	# get the first review column
-	firstReviewIndex = i + 4
-	firstReview = contents[firstReviewIndex].strip()
-	firstReview = firstReview.replace(" ", "")
-	#print(firstReview)
-	ratingNum = list(filter(None, firstReview.split("|")))[0]
-	#print("Rating is [" + ratingNum + "]")
-
-	# find the last review, get how many reviews total
-	reviews = list()
-	numOfReviews = 0
-	while contents[firstReviewIndex + numOfReviews].find("|") != -1:
-		#print(contents[firstReviewIndex + numOfReviews])
-		reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])
-		#print("{" + ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1] + "}")
-		numOfReviews += 1
 
 	print("USER [" + username + "] HAS [" + str(len(reviews)) + "] REVIEWS")
 
@@ -96,10 +100,12 @@ def INSERT_AFTER(keyword, value):
 	f.write(contents.encode("utf-8"))
 	f.close()
 
-def lessThan(a, b):
+def LESS_THAN(a, b):
 	length = a if len(a) < len(b) else b
+
 	_a = a.lower()
 	_b = b.lower()
+
 	for i in range(len(length)):
 		if _a[i] < _b[i]:
 			#print(_a[i] + " is less than " + _b[i])
@@ -108,7 +114,10 @@ def lessThan(a, b):
 			#print(_a[i] + " is greater than " + _b[i])
 			return False
 
-	return False
+	if len(a) < len(b):
+		return True
+	else:
+		return False
 
 def ADD_USER_RATING(username, rating, url):
 	print("ADDING user = [" + username + "], rating = [" + rating + "], url = [" + url + "]")
@@ -120,7 +129,7 @@ def GET_COMMAND():
 	else:
 		print("no")
 
-	if lessThan("##Dog", "##allguac420"):
+	if LESS_THAN("##Dog", "##allguac420"):
 		print("yes")
 	else:
 		print("no")
