@@ -14,13 +14,16 @@ def FILE_READING():
 	print()
 
 def GET_USER_INFO(username):
-	f = open("userDirectory.txt", "r")
+	f = open("userStuff.txt", "r")
 	contents = f.readlines()
 	userFound = False;
+	i = 0
 
 	# find username
 	for i in range(len(contents)):
-		if username in contents[i]:
+		if contents[i].count("#") != 2:
+			continue
+		if ("##" + username) == contents[i].strip():
 			print(username + " in position " + str(i)) 
 			userFound = True
 			break
@@ -86,6 +89,16 @@ def INSERT_AFTER(keyword, value):
 	f.write(contents.encode("utf-8"))
 	f.close()
 
+def GET_COMMAND():
+	while True:
+		userInput = input("Enter USER, RATING, URL: ")
+		if userInput != "":
+			userInput = userInput.split()
+			GET_USER_INFO(userInput[0])
+		else:
+			break
+	pass
+
 def main():
 	print("Starting main!")
 	#FILE_READING()
@@ -99,5 +112,4 @@ def main():
 			break
 	print("Exiting main! Goodbye!")
 
-if __name__ == "__main__":
-    main()
+GET_COMMAND()
