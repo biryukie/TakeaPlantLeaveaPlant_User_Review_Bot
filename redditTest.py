@@ -2,12 +2,12 @@ import praw
 
 credentials = open(open("loc.txt", "r").readline().strip(), "r")
 
-id = credentials.readline().strip()
-sc = credentials.readline().strip()
-un = credentials.readline().strip()
-pw = credentials.readline().strip()
+cid = credentials.readline().strip()
+csc = credentials.readline().strip()
+usn = credentials.readline().strip()
+pwd = credentials.readline().strip()
 
-reddit = praw.Reddit(client_id = id, client_secret = sc, password = pw, user_agent = "testscript by /u/eggpl4nt", username = un)
+reddit = praw.Reddit(client_id = cid, client_secret = csc, password = pwd, user_agent = "testscript by /u/eggpl4nt", username = usn)
 
 print(reddit.user.me())
 
