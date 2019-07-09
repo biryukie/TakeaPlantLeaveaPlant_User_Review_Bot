@@ -14,8 +14,9 @@ def FILE_READING():
 	print()
 
 def GET_USER_INFO(username):
-	f = open("userStuff.txt", "r")
+	f = open("userStuff.txt", "r", encoding = "utf-8")
 	contents = f.readlines()
+	f.close()
 	userFound = False;
 	i = 0
 
@@ -60,10 +61,20 @@ def GET_USER_INFO(username):
 	if not userFound:
 		print("USER [" + username + "] NOT FOUND")
 		print("we're at index " + str(i))
-		# to do
-		# find the place where to create a section for the new user
-		# note! subtract 1 from the "i" value we find. otherwise we're on the username for the next thing.
-		return
+		insertionIndex = i - 1;
+		print("insert new row at index " + str(insertionIndex))
+		text = list()
+		text.append("\r\n##" + username + "\r\n")
+		text.append("###\u2605\u2605\u2605\u2605\u2605 (X, Y trade)\r\n")
+		text.append("| Rating | Comments |\r\n")
+		text.append("|--------|:-------|\r\n")
+		text.append("| X | URL |\r\n")
+		print("-----")
+		for s in text:
+			print(s, end='')
+		print("-----")
+		for s in reversed(text):
+			contents.insert(insertionIndex, s)
 
 	print("USER [" + username + "] HAS [" + str(len(reviews)) + "] REVIEWS")
 
@@ -75,6 +86,11 @@ def GET_USER_INFO(username):
 	rating /= len(reviews)
 
 	print("USER [" + username + "] HAS RATING [" + (str(int(rating)) if rating.is_integer() else str(round(rating, 2))) + "]")
+
+	f = open("userStuff.txt", "wb")
+	contents = "".join(contents)
+	f.write(contents.encode("utf-8"))
+	f.close()
 
 def INSERT_AFTER(keyword, value):
 	f = open("test.txt", "r")
@@ -116,8 +132,8 @@ def LESS_THAN(a, b):
 
 	if len(a) < len(b):
 		return True
-	else:
-		return False
+	
+	return False
 
 def ADD_USER_RATING(username, rating, url):
 	print("ADDING user = [" + username + "], rating = [" + rating + "], url = [" + url + "]")
