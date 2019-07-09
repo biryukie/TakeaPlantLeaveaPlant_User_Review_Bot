@@ -1,7 +1,3 @@
-def INPUT():
-	name = input("Enter a name: ")
-	print("You wrote " + name)
-
 def FILE_READING():
 	f = open("test.txt" , 'r+')   
 	# get array of lines
@@ -13,7 +9,7 @@ def FILE_READING():
 
 	print()
 
-def GET_USER_INFO(username):
+def ADD_USER_RATING(username, rating, url):
 	f = open("userStuff.txt", "r", encoding = "utf-8")
 	contents = f.readlines()
 	f.close()
@@ -57,6 +53,8 @@ def GET_USER_INFO(username):
 		
 		insertionIndex = firstReviewIndex + len(reviews)
 		print("insert new row at index " + str(insertionIndex))
+		s = "| " + rating + " | " + url + " |\r\n"
+		contents.insert(insertionIndex, s)
 
 	if not userFound:
 		print("USER [" + username + "] NOT FOUND")
@@ -65,10 +63,16 @@ def GET_USER_INFO(username):
 		print("insert new row at index " + str(insertionIndex))
 		text = list()
 		text.append("\r\n##" + username + "\r\n")
-		text.append("###\u2605\u2605\u2605\u2605\u2605 (X, Y trade)\r\n")
+		stars = ""
+		roundedNum = round(float(rating) + 0.0000001) # adding 0.0000001 because Python is stupid and does stupid rounding. Like all its stupid everything. SURPRISE!!
+		for i in range(roundedNum):
+			stars += "\u2605"
+		for i in range(5 - roundedNum):
+			stars += "\u2606"
+		text.append("###" + stars + " (" + rating + ", 1 trade)\r\n")
 		text.append("| Rating | Comments |\r\n")
 		text.append("|--------|:-------|\r\n")
-		text.append("| X | URL |\r\n")
+		text.append("| " + rating + " | " + url + " |\r\n")
 		print("-----")
 		for s in text:
 			print(s, end='')
@@ -76,16 +80,19 @@ def GET_USER_INFO(username):
 		for s in reversed(text):
 			contents.insert(insertionIndex, s)
 
+	# add current review
+	reviews.append(rating)
+
 	print("USER [" + username + "] HAS [" + str(len(reviews)) + "] REVIEWS")
 
 	# calculate average
-	rating = 0
+	avgRating = 0
 	for review in reviews:
-		rating += int(review)
+		avgRating += float(review)
 	
-	rating /= len(reviews)
+	avgRating /= len(reviews)
 
-	print("USER [" + username + "] HAS RATING [" + (str(int(rating)) if rating.is_integer() else str(round(rating, 2))) + "]")
+	print("USER [" + username + "] HAS RATING [" + (str(int(avgRating)) if avgRating.is_integer() else str(round(avgRating, 2))) + "]")
 
 	f = open("userStuff.txt", "wb")
 	contents = "".join(contents)
@@ -124,10 +131,8 @@ def LESS_THAN(a, b):
 
 	for i in range(len(length)):
 		if _a[i] < _b[i]:
-			#print(_a[i] + " is less than " + _b[i])
 			return True
 		if _a[i] > _b[i]:
-			#print(_a[i] + " is greater than " + _b[i])
 			return False
 
 	if len(a) < len(b):
@@ -135,21 +140,7 @@ def LESS_THAN(a, b):
 	
 	return False
 
-def ADD_USER_RATING(username, rating, url):
-	print("ADDING user = [" + username + "], rating = [" + rating + "], url = [" + url + "]")
-	GET_USER_INFO(username)
-
 def GET_COMMAND():
-	if "##Dog" < "##allguac420":
-		print("yes")
-	else:
-		print("no")
-
-	if LESS_THAN("##Dog", "##allguac420"):
-		print("yes")
-	else:
-		print("no")
-
 	while True:
 		userInput = input("Enter USER RATING URL: ")
 		if userInput != "":
@@ -159,23 +150,12 @@ def GET_COMMAND():
 				continue
 			redditor = userInput[0]
 			rating = userInput[1]
+			if float(rating) < 1 or float(rating) > 5:
+				print("ERROR: rating must be between 1 and 5")
+				continue
 			url = userInput[2]
 			ADD_USER_RATING(redditor, rating, url)
-			#GET_USER_INFO(userInput[0])
 		else:
 			break
-
-def main():
-	print("Starting main!")
-	#FILE_READING()
-	#INSERT_AFTER("banana", "peach")
-	GET_USER_INFO("CatTut")
-	while True:
-		name = input("Enter a name: ")
-		if name != "":
-			GET_USER_INFO(name)
-		else:
-			break
-	print("Exiting main! Goodbye!")
 
 GET_COMMAND()
