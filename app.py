@@ -89,15 +89,24 @@ def INSERT_AFTER(keyword, value):
 	f.write(contents.encode("utf-8"))
 	f.close()
 
+def ADD_USER_RATING(username, rating, url):
+	print("ADDING user = [" + username + "], rating = [" + rating + "], url = [" + url + "]")
+
 def GET_COMMAND():
 	while True:
-		userInput = input("Enter USER, RATING, URL: ")
+		userInput = input("Enter USER RATING URL: ")
 		if userInput != "":
 			userInput = userInput.split()
-			GET_USER_INFO(userInput[0])
+			if len(userInput) != 3:
+				print("ERROR: invalid arguments")
+				continue
+			redditor = userInput[0]
+			rating = userInput[1]
+			url = userInput[2]
+			ADD_USER_RATING(redditor, rating, url)
+			#GET_USER_INFO(userInput[0])
 		else:
 			break
-	pass
 
 def main():
 	print("Starting main!")
