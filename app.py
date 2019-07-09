@@ -27,15 +27,22 @@ def GET_USER_INFO(username):
 			print(username + " in position " + str(i)) 
 			userFound = True
 			break
+		# stop once we go past potential usernames
+		if lessThan(("##" + username), contents[i].strip()):
+			print(("##" + username) + " is less than " + contents[i].strip())
+			break
 
-	if userFound is False:
+	if userFound:
+		print("we found the user yay.")
+
+	if not userFound:
 		print("USER [" + username + "] NOT FOUND")
+		print("we're at index " + str(i))
+		# to do
+		# find the place where to create a section for the new user
 		return
 	
-	rating = contents[i + 1].rstrip()
-	rating = rating.replace("#", "")
-
-	print("USER [" + username + "] HAS RATING [" + rating + "]")
+	ratingIndex = i + 1
 
 	# get the first review column
 	firstReviewIndex = i + 4
@@ -89,10 +96,35 @@ def INSERT_AFTER(keyword, value):
 	f.write(contents.encode("utf-8"))
 	f.close()
 
+def lessThan(a, b):
+	length = a if len(a) < len(b) else b
+	_a = a.lower()
+	_b = b.lower()
+	for i in range(len(length)):
+		if _a[i] < _b[i]:
+			#print(_a[i] + " is less than " + _b[i])
+			return True
+		if _a[i] > _b[i]:
+			#print(_a[i] + " is greater than " + _b[i])
+			return False
+
+	return False
+
 def ADD_USER_RATING(username, rating, url):
 	print("ADDING user = [" + username + "], rating = [" + rating + "], url = [" + url + "]")
+	GET_USER_INFO(username)
 
 def GET_COMMAND():
+	if "##Dog" < "##allguac420":
+		print("yes")
+	else:
+		print("no")
+
+	if lessThan("##Dog", "##allguac420"):
+		print("yes")
+	else:
+		print("no")
+
 	while True:
 		userInput = input("Enter USER RATING URL: ")
 		if userInput != "":
