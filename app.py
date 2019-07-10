@@ -1,7 +1,7 @@
 import praw
 
 global THE_FILE
-THE_FILE = "playland.txt"
+THE_FILE = "userReviews_2019-07-10.txt"
 
 credentials = open(open("loc.txt", "r").readline().strip(), "r")
 
@@ -52,7 +52,7 @@ def ADD_USER_RATING(username, rating, url):
 		contents.insert(insertionIndex, s)
 
 	if not userFound:
-		print("USER [" + username + "] NOT FOUND... CREATING SECTION...")
+		print("User [" + username + "] not found... creating section...")
 		#print("we're at index " + str(i))
 		insertionIndex = i - 1;
 		#print("insert new row at index " + str(insertionIndex))
@@ -81,7 +81,7 @@ def ADD_USER_RATING(username, rating, url):
 	# get flair text
 	flairText = GET_FLAIR_TEXT(avgRating, len(reviews))
 
-	print("USER [" + username + "] HAS RATING [" + flairText + "]")
+	print("User [" + username + "] has rating [" + flairText + "]")
 
 	# update rating in wikipage
 	contents[ratingIndex] = contents[ratingIndex].replace(contents[ratingIndex], "###" + flairText + "\n")
@@ -192,11 +192,13 @@ def main():
 	GET_COMMANDS()
 
 	# upload the updated wikipage
+	print("Uploading to [" + page.name + "]...")
 	file = open(THE_FILE, "r", encoding = "utf-8")
 	contents = file.read()
 	#print(str(contents))
 	file.close()
-	page.edit(contents, "TESTING")
+	page.edit(contents, "Bot adding user reviews!")
+	print("Finished uploading to [" + page.name + "]...")
 
 if __name__ == '__main__':
     main()
