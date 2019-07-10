@@ -1,14 +1,3 @@
-def FILE_READING():
-	f = open("test.txt" , 'r+')   
-	# get array of lines
-	file_Contents = f.readlines()
-	print("file number of lines = " + str(len(file_Contents)))
-
-	for x in file_Contents:
-		print(x, end='')
-
-	print()
-
 def ADD_USER_RATING(username, rating, url):
 	f = open("userStuff.txt", "r", encoding = "utf-8")
 	contents = f.readlines()
@@ -30,6 +19,7 @@ def ADD_USER_RATING(username, rating, url):
 			break
 
 	reviews = list()
+	ratingIndex = -1
 
 	if userFound:
 		ratingIndex = i + 1
@@ -63,22 +53,22 @@ def ADD_USER_RATING(username, rating, url):
 		print("insert new row at index " + str(insertionIndex))
 		text = list()
 		text.append("\r\n##" + username + "\r\n")
-		stars = ""
-		roundedNum = round(float(rating) + 0.0000001) # adding 0.0000001 because Python is stupid and does stupid rounding. Like all its stupid everything. SURPRISE!!
-		for i in range(roundedNum):
-			stars += "\u2605"
-		for i in range(5 - roundedNum):
-			stars += "\u2606"
-		text.append("###" + stars + " (" + rating + ", 1 trade)\r\n")
+		text.append("###" + GET_FLAIR_TEXT(float(rating), 1) + "\r\n")
 		text.append("| Rating | Comments |\r\n")
 		text.append("|--------|:-------|\r\n")
 		text.append("| " + rating + " | " + url + " |\r\n")
+		
 		print("-----")
 		for s in text:
 			print(s, end='')
 		print("-----")
+		
 		for s in reversed(text):
 			contents.insert(insertionIndex, s)
+
+		ratingIndex = insertionIndex + 1
+
+	print("rating index " + str(ratingIndex) + " : " + contents[ratingIndex])
 
 	# add current review
 	reviews.append(rating)
@@ -92,36 +82,31 @@ def ADD_USER_RATING(username, rating, url):
 	
 	avgRating /= len(reviews)
 
-	print("USER [" + username + "] HAS RATING [" + (str(int(avgRating)) if avgRating.is_integer() else str(round(avgRating, 2))) + "]")
+	flairText = GET_FLAIR_TEXT(avgRating, len(reviews))
+
+	print("USER [" + username + "] HAS RATING [" + flairText + "]")
+
+	contents[ratingIndex] = contents[ratingIndex].replace(contents[ratingIndex], "###" + flairText + "\n")
 
 	f = open("userStuff.txt", "wb")
 	contents = "".join(contents)
 	f.write(contents.encode("utf-8"))
 	f.close()
 
-def INSERT_AFTER(keyword, value):
-	f = open("test.txt", "r")
-	contents = f.readlines()
-	f.close()
+def GET_FLAIR_TEXT(rating, trades):
+	flairText = ""
+	roundedNum = round(rating + 0.0000001) # adding 0.0000001 because Python is stupid and does stupid rounding. Like all its stupid everything. SURPRISE!!
 
-	# find index
-	for i in range(len(contents)):
-		if keyword in contents[i]:
-			print(keyword + " in position " + str(i)) 
-			break
+	for i in range(roundedNum):
+		flairText += "\u2605"
+	for i in range(5 - roundedNum):
+		flairText += "\u2606"
 
-	print (str(i) + " & " + contents[i])
+	number = str(int(rating)) if rating.is_integer() else str(round(rating, 2))
 
-	if keyword not in contents[i]:
-		print("Could not find this keyword: " + keyword)
-		return
+	flairText += "(" + number + ", " + str(trades) + (" trades" if trades > 1 else " trade") + ")"
 
-	contents.insert(i + 1, value + "\n")
-
-	f = open("test.txt", "wb")
-	contents = "".join(contents)
-	f.write(contents.encode("utf-8"))
-	f.close()
+	return flairText
 
 def LESS_THAN(a, b):
 	length = a if len(a) < len(b) else b
