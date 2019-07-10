@@ -1,5 +1,17 @@
+import praw
+
+global THE_FILE
+THE_FILE = "playland.txt"
+
+credentials = open(open("loc.txt", "r").readline().strip(), "r")
+
+cid = credentials.readline().strip()
+csc = credentials.readline().strip()
+usn = credentials.readline().strip()
+pwd = credentials.readline().strip()
+
 def ADD_USER_RATING(username, rating, url):
-	f = open("userStuff.txt", "r", encoding = "utf-8")
+	f = open(THE_FILE, "r", encoding = "utf-8")
 	contents = f.readlines()
 	f.close()
 	userFound = False;
@@ -31,7 +43,7 @@ def ADD_USER_RATING(username, rating, url):
 		numOfReviews = 0
 
 		while contents[firstReviewIndex + numOfReviews].find("|") != -1:
-			reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])  # [1] because Python likes to have [0] be newline. very epic.
+			reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])  # [1] because Python likes to have [0] be newline. epic.
 			numOfReviews += 1
 		
 		insertionIndex = firstReviewIndex + len(reviews)
@@ -74,7 +86,9 @@ def ADD_USER_RATING(username, rating, url):
 	# update rating in wikipage
 	contents[ratingIndex] = contents[ratingIndex].replace(contents[ratingIndex], "###" + flairText + "\n")
 
-	f = open("userStuff.txt", "wb")
+	SET_FLAIR(username, flairText)
+
+	f = open(THE_FILE, "wb")
 	contents = "".join(contents)
 	f.write(contents.encode("utf-8"))
 	f.close()
@@ -101,7 +115,7 @@ def GET_FLAIR_TEXT(rating, trades):
 
 	number = str(int(rating)) if rating.is_integer() else str(round(rating, 2))
 
-	flairText += "(" + number + ", " + str(trades) + (" trades" if trades > 1 else " trade") + ")"
+	flairText += " (" + number + ", " + str(trades) + (" trades" if trades > 1 else " trade") + ")"
 
 	return flairText
 
@@ -135,7 +149,7 @@ def LESS_THAN(a, b):
 	
 	return False
 
-def GET_COMMAND():
+def GET_COMMANDS():
 	while True:
 		userInput = input("Enter USER RATING URL: ")
 		if userInput != "":
@@ -153,4 +167,36 @@ def GET_COMMAND():
 		else:
 			break
 
-GET_COMMAND()
+def SET_FLAIR(username, flairtext):
+	redditUser = reddit.redditor(username)
+	sub.flair.set(redditUser, text = flairtext, css_class = "usergreen")
+
+def main():
+	global reddit
+	reddit = praw.Reddit(client_id = cid, client_secret = csc, password = pwd, user_agent = "/r/TakeaPlantLeaveaPlant Rating Bot by /u/eggpl4nt", username = usn)
+
+	# test to make sure PRAW is working
+	print(reddit.user.me())
+
+	# set the sub to TakeaPlantLeaveaPlant
+	global sub
+	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
+
+	# get the wikipage
+	page = sub.wiki["playland"]
+	file = open(THE_FILE, "wb")
+	file.write(page.content_md.encode("utf-8"))
+	file.close()
+
+	# perform commands
+	GET_COMMANDS()
+
+	# upload the updated wikipage
+	file = open(THE_FILE, "r", encoding = "utf-8")
+	contents = file.read()
+	#print(str(contents))
+	file.close()
+	page.edit(contents, "TESTING")
+
+if __name__ == '__main__':
+    main()
