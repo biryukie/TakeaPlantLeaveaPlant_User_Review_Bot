@@ -5,7 +5,7 @@ The bot takes three arguments in the form of `username rating review_URL`, adds 
 
 ## Requirements
 1. Install [Python 3.6.8](https://www.python.org/downloads/release/python-368/)
-2. [Install PRAW](https://praw.readthedocs.io/en/latest/getting_started/installation.html)
+2. Install [PRAW](https://praw.readthedocs.io/en/latest/getting_started/installation.html)
 
 ### Reddit Configuration
 1. [Create a new Reddit app](https://reddit.com/prefs/apps)
