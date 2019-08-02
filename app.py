@@ -52,7 +52,7 @@ def ADD_USER_RATING(username, rating, url):
 		contents.insert(insertionIndex, s)
 
 	if not userFound:
-		print("User [" + username + "] not found... creating section...")
+		print("    User [" + username + "] not found... creating section...")
 		#print("we're at index " + str(i))
 		insertionIndex = i - 1;
 		#print("insert new row at index " + str(insertionIndex))
@@ -81,7 +81,7 @@ def ADD_USER_RATING(username, rating, url):
 	# get flair text
 	flairText = GET_FLAIR_TEXT(avgRating, len(reviews))
 
-	print("User [" + username + "] has rating [" + flairText + "]")
+	print("    User [" + username + "] has rating [" + flairText + "]")
 
 	# update rating in wikipage
 	contents[ratingIndex] = contents[ratingIndex].replace(contents[ratingIndex], "###" + flairText + "\n")
@@ -108,8 +108,10 @@ def GET_FLAIR_TEXT(rating, trades):
 	flairText = ""
 	roundedNum = round(rating + 0.0000001) # adding 0.0000001 because Python is stupid and does stupid rounding. Like all its stupid everything. SURPRISE!!
 
+	# Append stars
 	for i in range(roundedNum):
 		flairText += "\u2605"
+	# Append empty (no) stars
 	for i in range(5 - roundedNum):
 		flairText += "\u2606"
 
@@ -151,16 +153,16 @@ def LESS_THAN(a, b):
 
 def GET_COMMANDS():
 	while True:
-		userInput = input("Enter USER RATING URL: ")
+		userInput = input("\nEnter USER RATING URL: ")
 		if userInput != "":
 			userInput = userInput.split()
 			if len(userInput) != 3:
-				print("ERROR: invalid arguments")
+				print("    [!] ERROR: invalid arguments")
 				continue
 			redditor = userInput[0]
 			rating = userInput[1]
-			if float(rating) < 1 or float(rating) > 5:
-				print("ERROR: rating must be between 1 and 5")
+			if float(rating) < 0 or float(rating) > 5:
+				print("    [!] ERROR: rating must be between 0 and 5")
 				continue
 			url = userInput[2]
 			ADD_USER_RATING(redditor, rating, url)
@@ -183,7 +185,8 @@ def main():
 	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
 
 	# get the wikipage
-	page = sub.wiki["playland"]
+	page = sub.wiki["userdirectory"]
+	#page = sub.wiki["playland"]
 	file = open(THE_FILE, "wb")
 	file.write(page.content_md.encode("utf-8"))
 	file.close()
