@@ -156,15 +156,25 @@ def GET_COMMANDS():
 		userInput = input("\nEnter USER RATING URL: ")
 		if userInput != "":
 			userInput = userInput.split()
+			
 			if len(userInput) != 3:
 				print("    [!] ERROR: invalid arguments")
 				continue
 			redditor = userInput[0]
+
+			try:
+				reddit.redditor(redditor).id
+			except:
+				print("    [!] ERROR: could not find username [" + redditor + "], please verify correct username")
+				continue
+
 			rating = userInput[1]
 			if float(rating) < 0 or float(rating) > 5:
 				print("    [!] ERROR: rating must be between 0 and 5")
 				continue
+
 			url = userInput[2]
+			
 			ADD_USER_RATING(redditor, rating, url)
 		else:
 			break
