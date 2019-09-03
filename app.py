@@ -48,7 +48,7 @@ def ADD_USER_RATING(username, rating, url):
 		
 		insertionIndex = firstReviewIndex + len(reviews)
 		#print("insert new row at index " + str(insertionIndex))
-		s = "| " + rating + " | " + url + " |\r\n"
+		s = "|" + rating + "|" + url + "|\r\n"
 		contents.insert(insertionIndex, s)
 
 	if not userFound:
@@ -59,9 +59,9 @@ def ADD_USER_RATING(username, rating, url):
 		text = list()
 		text.append("\r\n##" + username + "\r\n")
 		text.append("###" + GET_FLAIR_TEXT(float(rating), 1) + "\r\n")
-		text.append("| Rating | Comments |\r\n")
-		text.append("|--------|:-------|\r\n")
-		text.append("| " + rating + " | " + url + " |\r\n")
+		text.append("|Rating|Comments|\r\n")
+		text.append("|:-|:-|\r\n")
+		text.append("|" + rating + "|" + url + "|\r\n")
 		
 		for s in reversed(text):
 			contents.insert(insertionIndex, s)
@@ -181,7 +181,9 @@ def GET_COMMANDS():
 
 def SET_FLAIR(username, flairtext):
 	redditUser = reddit.redditor(username)
-	sub.flair.set(redditUser, text = flairtext, css_class = "usergreen")
+	sub.flair.set(redditUser, "test", css_class = "userorange")
+	sub.flair.set(redditUser, flairtext, css_class = "usergreen")
+	
 
 def main():
 	global reddit
