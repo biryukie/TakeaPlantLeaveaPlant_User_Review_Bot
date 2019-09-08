@@ -1,7 +1,7 @@
 import praw
 
 global THE_FILE
-THE_FILE = "userReviews_2019-07-10.txt"
+THE_FILE = "userReviews_test_sept_2019.txt"
 
 credentials = open(open("loc.txt", "r").readline().strip(), "r")
 
@@ -11,9 +11,17 @@ usn = credentials.readline().strip()
 pwd = credentials.readline().strip()
 
 def ADD_USER_RATING(username, rating, url):
+	# get the wikipage
+	directory = (GET_DIRECTORY(username[0].lower()))
+	page = sub.wiki["userdirectory/" + directory]
+	file = open(THE_FILE, "wb")
+	file.write(page.content_md.encode("utf-8"))
+	file.close()
+
 	f = open(THE_FILE, "r", encoding = "utf-8")
 	contents = f.readlines()
 	f.close()
+
 	userFound = False;
 	i = 0
 
@@ -88,10 +96,19 @@ def ADD_USER_RATING(username, rating, url):
 
 	SET_FLAIR(username, flairText)
 
+	# original piece of code
 	f = open(THE_FILE, "wb")
 	contents = "".join(contents)
 	f.write(contents.encode("utf-8"))
 	f.close()
+
+	# upload the updated wikipage
+	print("Uploading to [" + page.name + "]...")
+	file = open(THE_FILE, "r", encoding = "utf-8")
+	contents = file.read()
+	file.close()
+	page.edit(contents, "Update user " + username + ".")
+	print("Finished uploading to [" + page.name + "]...")
 
 
 def GET_FLAIR_TEXT(rating, trades):
@@ -151,6 +168,43 @@ def LESS_THAN(a, b):
 	
 	return False
 
+def GET_DIRECTORY(firstLetter): 
+	# switcher is dictionary data type here 
+    switcher = { 
+        'a': "a", 
+        'b': "b", 
+        'c': "c", 
+		'd': "d",
+		'e': "e",
+		'f': "f",
+		'g': "g",
+		'h': "h", 
+		'i': "i", 
+		'j': "j", 
+		'k': "k", 
+		'l': "l", 
+		'm': "m", 
+		'n': "n", 
+		'o': "o", 
+		'p': "p", 
+		'q': "q", 
+		'r': "r", 
+		's': "s", 
+		't': "t", 
+		'u': "u", 
+		'v': "v", 
+		'w': "w", 
+		'x': "x", 
+		'y': "y", 
+		'z': "z", 
+    } 
+
+    # method of dictionary data type returns  
+    # value of passed argument if it is present  
+    # in dictionary otherwise second argument will 
+    # be assigned as default value of passed argument 
+    return switcher.get(firstLetter, "etc")
+
 def GET_COMMANDS():
 	while True:
 		userInput = input("\nEnter USER RATING URL: ")
@@ -196,24 +250,8 @@ def main():
 	global sub
 	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
 
-	# get the wikipage
-	page = sub.wiki["userdirectory"]
-	#page = sub.wiki["playland"]
-	file = open(THE_FILE, "wb")
-	file.write(page.content_md.encode("utf-8"))
-	file.close()
-
 	# perform commands
 	GET_COMMANDS()
-
-	# upload the updated wikipage
-	print("Uploading to [" + page.name + "]...")
-	file = open(THE_FILE, "r", encoding = "utf-8")
-	contents = file.read()
-	#print(str(contents))
-	file.close()
-	page.edit(contents, "Bot adding user reviews!")
-	print("Finished uploading to [" + page.name + "]...")
 
 if __name__ == '__main__':
     main()
