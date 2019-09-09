@@ -89,26 +89,20 @@ def ADD_USER_RATING(username, rating, url):
 	# get flair text
 	flairText = GET_FLAIR_TEXT(avgRating, len(reviews))
 
-	print("    User [" + username + "] has rating [" + flairText + "]")
+	print("    User [" + username + "] now has rating [" + flairText + "]")
 
 	# update rating in wikipage
 	contents[ratingIndex] = contents[ratingIndex].replace(contents[ratingIndex], "###" + flairText + "\n")
 
+	print("    Setting flair for [" + username + "]...")
 	SET_FLAIR(username, flairText)
 
-	# original piece of code
-	f = open(THE_FILE, "wb")
 	contents = "".join(contents)
-	f.write(contents.encode("utf-8"))
-	f.close()
 
 	# upload the updated wikipage
-	print("Uploading to [" + page.name + "]...")
-	file = open(THE_FILE, "r", encoding = "utf-8")
-	contents = file.read()
-	file.close()
+	print("    Uploading to [" + page.name + "]...")
 	page.edit(contents, "Update user " + username + ".")
-	print("Finished uploading to [" + page.name + "]...")
+	print("    Finished uploading to [" + page.name + "]...")
 
 
 def GET_FLAIR_TEXT(rating, trades):
@@ -168,70 +162,91 @@ def LESS_THAN(a, b):
 	
 	return False
 
-def GET_DIRECTORY(firstLetter): 
-	# switcher is dictionary data type here 
-    switcher = { 
-        'a': "a", 
-        'b': "b", 
-        'c': "c", 
-		'd': "d",
-		'e': "e",
-		'f': "f",
-		'g': "g",
-		'h': "h", 
-		'i': "i", 
-		'j': "j", 
-		'k': "k", 
-		'l': "l", 
-		'm': "m", 
-		'n': "n", 
-		'o': "o", 
-		'p': "p", 
-		'q': "q", 
-		'r': "r", 
-		's': "s", 
-		't': "t", 
-		'u': "u", 
-		'v': "v", 
-		'w': "w", 
-		'x': "x", 
-		'y': "y", 
-		'z': "z", 
-    } 
-
-    # method of dictionary data type returns  
-    # value of passed argument if it is present  
-    # in dictionary otherwise second argument will 
-    # be assigned as default value of passed argument 
-    return switcher.get(firstLetter, "etc")
+def GET_DIRECTORY(char): 
+	if char == 'a':
+		return "a"
+	elif char == 'b':
+		return "b"
+	elif char == 'c':
+		return "c"
+	elif char == 'd':
+		return "d"
+	elif char == 'e':
+		return "e"
+	elif char == 'f':
+		return "f"
+	elif char == 'g':
+		return "g"
+	elif char == 'h':
+		return "h"
+	elif char == 'i':
+		return "i"
+	elif char == 'j':
+		return "j"
+	elif char == 'k':
+		return "k"
+	elif char == 'l':
+		return "l"
+	elif char == 'm':
+		return "m"
+	elif char == 'n':
+		return "n"
+	elif char == 'o':
+		return "o"
+	elif char == 'p':
+		return "p"
+	elif char == 'q':
+		return "q"
+	elif char == 'r':
+		return "r"
+	elif char == 's':
+		return "s"
+	elif char == 't':
+		return "t"
+	elif char == 'u':
+		return "u"
+	elif char == 'v':
+		return "v"
+	elif char == 'w':
+		return "w"
+	elif char == 'x':
+		return "x"
+	elif char == 'y':
+		return "y"
+	elif char == 'z':
+		return "z"
+	else:
+		return "etc"
 
 def GET_COMMANDS():
 	while True:
 		userInput = input("\nEnter USER RATING URL: ")
-		if userInput != "":
-			userInput = userInput.split()
-			
-			if len(userInput) != 3:
-				print("    [!] ERROR: invalid arguments")
-				continue
-			redditor = userInput[0]
 
-			try:
-				reddit.redditor(redditor).id
-			except:
-				print("    [!] ERROR: could not find username [" + redditor + "], please verify correct username")
-				continue
-
-			rating = userInput[1]
-			if float(rating) < 0 or float(rating) > 5:
-				print("    [!] ERROR: rating must be between 0 and 5")
-				continue
-
-			url = userInput[2]
-			
-			ADD_USER_RATING(redditor, rating, url)
-		else:
+		# end program if no input
+		if userInput == "":
 			break
+
+		userInput = userInput.split()
+			
+		if len(userInput) != 3:
+			print("    [!] ERROR: invalid arguments")
+			continue
+		redditor = userInput[0]
+
+		try:
+			reddit.redditor(redditor).id
+		except:
+			print("    [!] ERROR: could not find username [" + redditor + "], please verify correct username")
+			continue
+
+		rating = userInput[1]
+		if float(rating) < 0 or float(rating) > 5:
+			print("    [!] ERROR: rating must be between 0 and 5")
+			continue
+
+		url = userInput[2]
+			
+		ADD_USER_RATING(redditor, rating, url)
 
 def SET_FLAIR(username, flairtext):
 	redditUser = reddit.redditor(username)
