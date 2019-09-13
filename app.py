@@ -114,7 +114,7 @@ def ADD_USER_RATING(username, rating, url):
 			post = reddit.submission(url = url)
 			post.reply(comment)
 		except:
-			print("    [!] WARNING: submission url invalid, could not leave a review confirmation comment.")
+			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
 
 
 def GET_FLAIR_TEXT(rating, trades):
