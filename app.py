@@ -1,4 +1,6 @@
 import praw
+from time import sleep
+from praw.models import Message
 
 global THE_FILE
 THE_FILE = "userReviews_test_sept_2019.txt"
@@ -108,8 +110,10 @@ def ADD_USER_RATING(username, rating, url):
 	page.edit(contents, "Update user " + username + ".")
 	print("    Finished uploading to [" + page.name + "]...")
 
+	result = "Your command has been executed successfully."
+
 	#leave a comment on the post
-	comment = "Your review for **" + properUsername + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([I am a bot, this is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
+	comment = "Your review for **" + properUsername + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([This is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
 	try:
 		post = reddit.comment( url = url)
 		post.reply(comment)
@@ -119,7 +123,9 @@ def ADD_USER_RATING(username, rating, url):
 			post.reply(comment)
 		except:
 			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
-
+			result = "Your command has been executed successfully.\n\n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
+	
+	return result
 
 def GET_FLAIR_TEXT(rating, trades):
 	"""Generates the text to be used in a user's user flair.
@@ -234,6 +240,58 @@ def GET_DIRECTORY(char):
 	else:
 		return "etc"
 
+def CHECK_PMS():
+	mods = sub.moderator()
+	while True:
+		print("Checking pms...")
+		#messages = self.r.get_unread()
+		messages = reddit.inbox.unread()
+		for item in messages:
+			if isinstance(item, Message):
+				if (item.author in mods):
+					command = item.body
+					print(command)
+					VERIFY_COMMAND(item.author, command, item)
+				else:
+					print(item.author + " was not a moderator.")
+			item.mark_read()
+		sleep(15)
+
+def VERIFY_COMMAND(sender, command, message):
+	userInput = command.split()
+
+	if len(userInput) != 3:
+		message.reply("Command [" + command + "] had invalid arguments. Please check that you have [USERNAME RATING URL] and try again.")
+		print("Invalid arguments, sending reply.")
+		return
+
+	redditor = userInput[0]
+
+	try:
+		reddit.redditor(redditor).id
+	except:
+		message.reply("Command [" + command + "]\n\nCould not find username [" + redditor + "], please verify correct username and try again.")
+		print("Couldn't find user, sending reply.")
+		return
+
+	rating = userInput[1]
+
+	try:
+		if float(rating) < 0 or float(rating) > 5:
+			message.reply("Command [" + command + "]\n\nRating must be between 0 and 5, please verify rating and try again.")
+			print("Rating number incorrect, sending reply.")
+			return
+	except:
+		message.reply("Command [" + command + "]\n\nRating must be between 0 and 5, please verify rating and try again.")
+		print("Rating number incorrect, sending reply.")
+		return
+
+	url = userInput[2]
+			
+	reply = ADD_USER_RATING(redditor, rating, url)
+	message.reply(reply)
+	print("Done with this message.")
+
 def GET_COMMANDS():
 	while True:
 		userInput = input("\nEnter USER RATING URL: ")
@@ -247,6 +305,7 @@ def GET_COMMANDS():
 		if len(userInput) != 3:
 			print("    [!] ERROR: invalid arguments")
 			continue
+
 		redditor = userInput[0]
 
 		try:
@@ -256,7 +315,12 @@ def GET_COMMANDS():
 			continue
 
 		rating = userInput[1]
-		if float(rating) < 0 or float(rating) > 5:
+
+		try:
+			if float(rating) < 0 or float(rating) > 5:
+				print("    [!] ERROR: rating must be between 0 and 5")
+				continue
+		except:
 			print("    [!] ERROR: rating must be between 0 and 5")
 			continue
 
@@ -282,7 +346,8 @@ def main():
 	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
 
 	# perform commands
-	GET_COMMANDS()
+	CHECK_PMS()
+	#GET_COMMANDS()
 
 if __name__ == '__main__':
     main()
