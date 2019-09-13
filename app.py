@@ -104,6 +104,18 @@ def ADD_USER_RATING(username, rating, url):
 	page.edit(contents, "Update user " + username + ".")
 	print("    Finished uploading to [" + page.name + "]...")
 
+	#leave a comment on the post
+	comment = "Your **" + rating + "**-star review for **" + username + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([*I am a bot, this message was sent automatically.*])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
+	try:
+		post = reddit.comment( url = url)
+		post.reply(comment)
+	except:
+		try:
+			post = reddit.submission(url = url)
+			post.reply(comment)
+		except:
+			print("    [!] WARNING: submission url invalid, could not leave a review confirmation comment.")
+
 
 def GET_FLAIR_TEXT(rating, trades):
 	"""Generates the text to be used in a user's user flair.
