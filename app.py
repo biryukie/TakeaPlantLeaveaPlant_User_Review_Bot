@@ -40,9 +40,12 @@ def ADD_USER_RATING(username, rating, url):
 
 	reviews = list()
 	ratingIndex = -1
+	properUsername = ""
 
 	if userFound:
 		ratingIndex = i + 1
+
+		properUsername = contents[i].replace("##", "").strip()
 
 		# get the first review column
 		firstReviewIndex = i + 4
@@ -60,6 +63,7 @@ def ADD_USER_RATING(username, rating, url):
 		contents.insert(insertionIndex, s)
 
 	if not userFound:
+		properUsername = username;
 		print("    User [" + username + "] not found... creating section...")
 		#print("we're at index " + str(i))
 		insertionIndex = i - 1;
@@ -105,7 +109,7 @@ def ADD_USER_RATING(username, rating, url):
 	print("    Finished uploading to [" + page.name + "]...")
 
 	#leave a comment on the post
-	comment = "Your **" + rating + "**-star review for **" + username + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([*I am a bot, this message was sent automatically.*])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
+	comment = "Your review for **" + properUsername + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([I am a bot, this is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
 	try:
 		post = reddit.comment( url = url)
 		post.reply(comment)
