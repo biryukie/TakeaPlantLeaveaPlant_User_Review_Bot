@@ -1,7 +1,7 @@
 # /r/TakeaPlantLeaveaPlant User Review Bot
-A simple user review bot for /r/TakeaPlantLeaveaPlant.
+A user review bot for /r/TakeaPlantLeaveaPlant.
 
-The bot takes three arguments in the form of `username rating review_URL`, adds the user to the Reviews wikipage, and updates their flair.
+The bot takes three arguments in the form of `username rating review_URL`, adds the user to a wikipage for reviews starting with their username's first character, and updates their flair.
 
 ## Requirements
 1. Install [Python 3.6.8](https://www.python.org/downloads/release/python-368/)
@@ -26,8 +26,7 @@ The `loc.txt` in the code on line `credentials = open(open("loc.txt", "r").readl
 ### Set Up
 * Line `THE_FILE = "NAME.txt"` near the top can be changed to whatever you want your temporary local version of your wikipage to be. 
 * In `main()` modify `sub = reddit.subreddit("YOUR_SUBREDDIT_NAME")` and `page = sub.wiki["YOUR_REVIEWS_WIKI_PAGE"]`
+* I haven't tested what happens if you don't have the wiki pages for each character already set up. You may want to set up the wiki pages before hand. 
 
 ### Program Execution
-When running the program, you will be prompted to enter a string consisting of `username rating review_URL`. Once this is entered, the user's flair will be calculated and set instantly. 
-
-**Updating the wikipage does not happen until you press `ENTER` on the prompt**, which signals you are done inputting user reviews, and then uploads the updated wikipage to your subreddit.
+When running the program, you will be prompted to enter a string consisting of `username rating review_URL`. Once this is entered, the review wiki page gets updated and the user's flair is calculated and set. 
