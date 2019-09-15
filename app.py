@@ -57,6 +57,42 @@ def ADD_USER_RATING(username, rating, url):
 
 		while contents[firstReviewIndex + numOfReviews].find("|") != -1:
 			reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])  # [1] because Python likes to have [0] be newline. epic.
+			storedUrl = ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[2]
+			isUrlComment = -1
+			isStoredComment = -1
+			post1 = ""
+			post2 = ""
+			# set the given url to comment/submission/other
+			try:
+				post1 = reddit.comment(url = url)
+				isUrlComment = 1
+			except:
+				try:
+					post1 = reddit.submission(url = url)
+					isUrlComment = 0
+				except:
+					isUrlComment = -1
+			# set the stored url to comment/submission/other
+			try:
+				post2 = reddit.comment(url = storedUrl)
+				isStoredComment = 1
+			except:
+				try:
+					post2 = reddit.submission(url = storedUrl)
+					isStoredComment = 0
+				except:
+					isStoredComment = -1
+			# check if they're both a comment or a submission, then check if they're both the same or not
+			if isUrlComment == 1 and isStoredComment == 1:  # both comments
+				if post1.id == post2.id:
+					print("    [!] NOTICE: Duplicate comment URL, not inputting review")
+					result = "Your command was **not** excuted, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
+					return result
+			if isUrlComment == 0 and isStoredComment == 0:  # both submissions
+				if post1.id == post2.id:
+					print("    [!] NOTICE: Duplicate submission URL, not inputting review")
+					result = "Your command was **not** excuted, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
+					return result
 			numOfReviews += 1
 		
 		insertionIndex = firstReviewIndex + len(reviews)
@@ -289,7 +325,7 @@ def VERIFY_COMMAND(sender, command, message):
 	url = userInput[2]
 			
 	reply = ADD_USER_RATING(redditor, rating, url)
-	message.reply(reply)
+	message.reply("Command [" + command + "]\n\n" + reply)
 	print("Done with this message.")
 
 def GET_COMMANDS():
@@ -330,7 +366,7 @@ def GET_COMMANDS():
 
 def SET_FLAIR(username, flairtext):
 	redditUser = reddit.redditor(username)
-	sub.flair.set(redditUser, "test", css_class = "userorange")
+	sub.flair.set(redditUser, "test", css_class = "userorange")  # this is because reddit's api is being weird and doing weird things...
 	sub.flair.set(redditUser, flairtext, css_class = "usergreen")
 	
 
@@ -339,15 +375,15 @@ def main():
 	reddit = praw.Reddit(client_id = cid, client_secret = csc, password = pwd, user_agent = "/r/TakeaPlantLeaveaPlant Rating Bot by /u/eggpl4nt", username = usn)
 
 	# test to make sure PRAW is working
-	print(reddit.user.me())
+	print(reddit.user.me().name + " is ready!")
 
 	# set the sub to TakeaPlantLeaveaPlant
 	global sub
 	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
 
 	# perform commands
-	CHECK_PMS()
-	#GET_COMMANDS()
+	#CHECK_PMS()
+	GET_COMMANDS()
 
 if __name__ == '__main__':
     main()
