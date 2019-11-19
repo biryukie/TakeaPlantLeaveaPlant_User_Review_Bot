@@ -42,12 +42,9 @@ def ADD_USER_RATING(username, rating, url):
 
 	reviews = list()
 	ratingIndex = -1
-	properUsername = ""
 
 	if userFound:
 		ratingIndex = i + 1
-
-		properUsername = contents[i].replace("##", "").strip()
 
 		# get the first review column
 		firstReviewIndex = i + 4
@@ -86,12 +83,12 @@ def ADD_USER_RATING(username, rating, url):
 			if isUrlComment == 1 and isStoredComment == 1:  # both comments
 				if post1.id == post2.id:
 					print("    [!] NOTICE: Duplicate comment URL, not inputting review")
-					result = "Your command was **not** excuted, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
+					result = "Your command was **not** executed, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
 					return result
 			if isUrlComment == 0 and isStoredComment == 0:  # both submissions
 				if post1.id == post2.id:
 					print("    [!] NOTICE: Duplicate submission URL, not inputting review")
-					result = "Your command was **not** excuted, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
+					result = "Your command was **not** executed, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
 					return result
 			numOfReviews += 1
 		
@@ -101,7 +98,6 @@ def ADD_USER_RATING(username, rating, url):
 		contents.insert(insertionIndex, s)
 
 	if not userFound:
-		properUsername = username;
 		print("    User [" + username + "] not found... creating section...")
 		#print("we're at index " + str(i))
 		insertionIndex = i - 1;
@@ -149,7 +145,7 @@ def ADD_USER_RATING(username, rating, url):
 	result = "Your command has been executed successfully."
 
 	#leave a comment on the post
-	comment = "Your review for **" + properUsername + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([This is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
+	comment = "Your review for **" + username + "** has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([This is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
 	try:
 		post = reddit.comment( url = url)
 		post.reply(comment)
@@ -342,12 +338,12 @@ def GET_COMMANDS():
 			print("    [!] ERROR: invalid arguments")
 			continue
 
-		redditor = userInput[0]
+		redditor = reddit.redditor(userInput[0])
 
 		try:
-			reddit.redditor(redditor).id
+			validCheck = redditor.id
 		except:
-			print("    [!] ERROR: could not find username [" + redditor + "], please verify correct username")
+			print("    [!] ERROR: could not find username [" + userInput[0] + "], please verify correct username")
 			continue
 
 		rating = userInput[1]
@@ -362,7 +358,7 @@ def GET_COMMANDS():
 
 		url = userInput[2]
 			
-		ADD_USER_RATING(redditor, rating, url)
+		ADD_USER_RATING(redditor.name, rating, url)
 
 def SET_FLAIR(username, flairtext):
 	redditUser = reddit.redditor(username)
