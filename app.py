@@ -169,7 +169,7 @@ def ADD_USER_RATING(username, rating, url):
 	except:
 		try:
 			post = reddit.submission(url = url)
-			post.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', 'Trade Review')
+			post.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
 			post.reply(comment)
 		except:
 			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
