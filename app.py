@@ -208,7 +208,7 @@ def GET_REVIEW_TYPE(url):
 		#print("{" + comment.body + "}")
 		if (str(comment.body)).strip().lower().startswith("[trade]"):
 			return Review.TRADE
-		if (str(comment.body)).strip().lower().startswith("[sales]"):
+		if (str(comment.body)).strip().lower().startswith("[sale]"):
 			return Review.SALE
 	except:
 		try:
