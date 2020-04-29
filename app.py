@@ -205,7 +205,7 @@ def GET_REVIEW_TYPE(url):
 	"""
 	try:
 		comment = reddit.comment(url = url)
-		print("{" + comment.body + "}")
+		#print("{" + comment.body + "}")
 		if (str(comment.body)).strip().lower().startswith("[trade]"):
 			return Review.TRADE
 		if (str(comment.body)).strip().lower().startswith("[sales]"):
@@ -213,13 +213,13 @@ def GET_REVIEW_TYPE(url):
 	except:
 		try:
 			submission = reddit.submission(url = url)
-			print("{" + submission.link_flair_text + "}")
+			#print("{" + submission.link_flair_text + "}")
 			if "Trade Review" in submission.link_flair_text:
 				return Review.TRADE
 			if "Sale Review" in submission.link_flair_text:
 				return Review.SALE
 		except:
-			print("submission unknown")
+			#print("submission unknown")
 			return Review.UNKNOWN
 
 	# Fall through to unknown
