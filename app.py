@@ -1,6 +1,12 @@
 import praw
 from time import sleep
 from praw.models import Message
+from enum import Enum
+
+class Review(Enum):
+    UNKNOWN = 0
+    TRADE = 1
+    SALE = 2
 
 global THE_FILE
 THE_FILE = "userReviews_test_sept_2019.txt"
@@ -43,6 +49,15 @@ def ADD_USER_RATING(username, rating, url):
 	reviews = list()
 	ratingIndex = -1
 
+	# See if it is a trade, sale, or uknown
+	reviewType = GET_REVIEW_TYPE(url)
+	reviewTypeText = ""
+
+	if reviewType == Review.TRADE:
+		reviewTypeText = "Trade"
+	elif reviewType == Review.SALE:
+		reviewTypeText = "Sale"
+
 	if userFound:
 		ratingIndex = i + 1
 
@@ -54,7 +69,7 @@ def ADD_USER_RATING(username, rating, url):
 
 		while contents[firstReviewIndex + numOfReviews].find("|") != -1:
 			reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])  # [1] because Python likes to have [0] be newline. epic.
-			storedUrl = ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[2]
+			storedUrl = ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[3]
 			isUrlComment = -1
 			isStoredComment = -1
 			post1 = ""
@@ -93,8 +108,9 @@ def ADD_USER_RATING(username, rating, url):
 			numOfReviews += 1
 		
 		insertionIndex = firstReviewIndex + len(reviews)
-		#print("insert new row at index " + str(insertionIndex))
-		s = "|" + rating + "|" + url + "|\r\n"
+
+		# Insert a row into existing table.
+		s = "|" + rating + "|" + reviewTypeText + "|" + url + "|\r\n"
 		contents.insert(insertionIndex, s)
 
 	if not userFound:
@@ -105,9 +121,9 @@ def ADD_USER_RATING(username, rating, url):
 		text = list()
 		text.append("\r\n##" + username + "\r\n")
 		text.append("###" + GET_FLAIR_TEXT(float(rating), 1) + "\r\n")
-		text.append("|Rating|Comments|\r\n")
-		text.append("|:-|:-|\r\n")
-		text.append("|" + rating + "|" + url + "|\r\n")
+		text.append("|Rating|Type|Comments|\r\n")
+		text.append("|:-|:-|:-|\r\n")
+		text.append("|" + rating + "|" + reviewTypeText + "|" + url + "|\r\n")
 		
 		for s in reversed(text):
 			contents.insert(insertionIndex, s)
@@ -125,7 +141,7 @@ def ADD_USER_RATING(username, rating, url):
 	avgRating /= len(reviews)
 
 	# get flair text
-	reviewText = GET_FLAIR_TEXT(avgRating, len(reviews))
+	userRatingText = GET_FLAIR_TEXT(avgRating, len(reviews))
 
 	# get location text
 	if contents[ratingIndex].find("|") != -1:
@@ -133,16 +149,16 @@ def ADD_USER_RATING(username, rating, url):
 	else:
 		locationText = ""
 
-	flairText = reviewText
-	wikiText = reviewText
+	flairText = userRatingText
+	wikiText = userRatingText
 
 	if locationText != "":
-		wikiText = reviewText + " | " + locationText
-		flairText = reviewText + " " + locationText
+		wikiText = userRatingText + " | " + locationText
+		flairText = userRatingText + " " + locationText
 
 	print("    LOCATION = [" + locationText + "]")
 
-	print("    User [" + username + "] now has rating [" + reviewText + "]")
+	print("    User [" + username + "] now has rating [" + userRatingText + "]")
 
 	print("    flair text = [" + flairText + "]")
 
@@ -169,13 +185,45 @@ def ADD_USER_RATING(username, rating, url):
 	except:
 		try:
 			post = reddit.submission(url = url)
-			post.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
+			if reviewType == Review.TRADE:
+				post.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
+			if reviewType == Review.SALE:
+				post.flair.select('6c2e82e0-89d2-11ea-b090-0e642cf8d7e9', ':star: Sale Review')
 			post.reply(comment)
 		except:
 			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
 			result = "Your command has been executed successfully.\n\n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
 	
 	return result
+
+def GET_REVIEW_TYPE(url):
+	"""Figures out which Review enum value the post/comment is.
+	Args:
+		url: the comment/post URL to examine
+	Returns:
+		The Review Enum value 
+	"""
+	try:
+		comment = reddit.comment(url = url)
+		print("{" + comment.body + "}")
+		if (str(comment.body)).strip().lower().startswith("[trade]"):
+			return Review.TRADE
+		if (str(comment.body)).strip().lower().startswith("[sales]"):
+			return Review.SALE
+	except:
+		try:
+			submission = reddit.submission(url = url)
+			print("{" + submission.link_flair_text + "}")
+			if "Trade Review" in submission.link_flair_text:
+				return Review.TRADE
+			if "Sale Review" in submission.link_flair_text:
+				return Review.SALE
+		except:
+			print("submission unknown")
+			return Review.UNKNOWN
+
+	# Fall through to unknown
+	return Review.UNKNOWN
 
 def GET_FLAIR_TEXT(rating, trades):
 	"""Generates the text to be used in a user's user flair.
