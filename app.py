@@ -363,12 +363,12 @@ def VERIFY_COMMAND(sender, command, message):
 		print("Invalid arguments, sending reply.")
 		return
 
-	redditor = userInput[0]
+	redditor = reddit.redditor(userInput[0])
 
 	try:
-		reddit.redditor(redditor).id
+		validCheck = redditor.id
 	except:
-		message.reply("Command [" + command + "]\n\nCould not find username [" + redditor + "], please verify correct username and try again.")
+		message.reply("Command [" + command + "]\n\nCould not find username [" + userInput[0] + "], please verify correct username and try again.")
 		print("Couldn't find user, sending reply.")
 		return
 
@@ -386,7 +386,7 @@ def VERIFY_COMMAND(sender, command, message):
 
 	url = userInput[2]
 			
-	reply = ADD_USER_RATING(redditor, rating, url)
+	reply = ADD_USER_RATING(redditor.name, rating, url)
 	message.reply("Command [" + command + "]\n\n" + reply)
 	print("Done with this message.")
 
@@ -444,8 +444,8 @@ def main():
 	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
 
 	# perform commands
-	#CHECK_PMS()
-	GET_COMMANDS()
+	CHECK_PMS()
+	#GET_COMMANDS()
 
 if __name__ == '__main__':
     main()
