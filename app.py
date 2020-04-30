@@ -436,16 +436,16 @@ def main():
 	global reddit
 	reddit = praw.Reddit(client_id = cid, client_secret = csc, password = pwd, user_agent = "/r/TakeaPlantLeaveaPlant Rating Bot by /u/eggpl4nt", username = usn)
 
-	# test to make sure PRAW is working
+	# Make sure PRAW is working
 	print(reddit.user.me().name + " is ready!")
 
-	# set the sub to TakeaPlantLeaveaPlant
+	# Set the sub to TakeaPlantLeaveaPlant
 	global sub
 	sub = reddit.subreddit("TakeaPlantLeaveaPlant")
 
-	# perform commands
-	CHECK_PMS()
-	#GET_COMMANDS()
+	# Perform commands
+	#CHECK_PMS()  # For server mode
+	GET_COMMANDS()  # For manual mode
 
 if __name__ == '__main__':
     main()
