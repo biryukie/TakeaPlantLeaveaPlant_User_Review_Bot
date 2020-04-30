@@ -156,11 +156,9 @@ def ADD_USER_RATING(username, rating, url):
 		wikiText = userRatingText + " | " + locationText
 		flairText = userRatingText + " " + locationText
 
-	print("    LOCATION = [" + locationText + "]")
+	print("    User [" + username + "] now has rating [" + userRatingText + "], location = [" + locationText + "]")
 
-	print("    User [" + username + "] now has rating [" + userRatingText + "]")
-
-	print("    flair text = [" + flairText + "]")
+	print("    Flair text = [" + flairText + "]")
 
 	# update flair in wikipage
 	contents[ratingIndex] = contents[ratingIndex].replace(contents[ratingIndex], "###" + wikiText + "\n")
@@ -180,7 +178,7 @@ def ADD_USER_RATING(username, rating, url):
 	#leave a comment on the post
 	comment = "Your review for `" + username + "` has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([This is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
 	try:
-		post = reddit.comment( url = url)
+		post = reddit.comment(url = url)
 		post.reply(comment)
 	except:
 		try:
