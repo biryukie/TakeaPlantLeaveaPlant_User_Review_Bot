@@ -268,13 +268,13 @@ def CHECK_PMS():
 				if (item.author in mods):
 					command = item.body
 					print(command)
-					VERIFY_COMMAND(item.author, command, item)
+					VERIFY_REDDIT_COMMAND(item.author, command, item)
 				else:
 					print(item.author + " was not a moderator.")
 			item.mark_read()
 		sleep(15)
 
-def VERIFY_COMMAND(sender, command, message):
+def VERIFY_REDDIT_COMMAND(sender, command, message):
 	userInput = command.split()
 
 	if len(userInput) != 3:
@@ -309,7 +309,7 @@ def VERIFY_COMMAND(sender, command, message):
 	message.reply("Command [" + command + "]\n\n" + reply)
 	print("Done with this message.")
 
-def GET_COMMANDS():
+def GET_CONSOLE_COMMANDS():
 	while True:
 		userInput = input("\nEnter USER RATING URL: ")
 
@@ -393,7 +393,7 @@ def main():
 
 	# Perform commands
 	#CHECK_PMS()  # For server mode
-	GET_COMMANDS()  # For manual mode
+	GET_CONSOLE_COMMANDS()  # For manual mode
 
 if __name__ == '__main__':
     main()
