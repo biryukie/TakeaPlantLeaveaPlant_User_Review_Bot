@@ -1,7 +1,13 @@
+import os
 import utils
+
+import discord
+from discord.ext import commands
+
 import praw
-from time import sleep
 from praw.models import Message
+
+from time import sleep
 from enum import Enum
 
 class Review(Enum):
@@ -339,15 +345,44 @@ def GET_COMMANDS():
 			
 		ADD_USER_RATING(redditor.name, rating, url)
 
+def PROCESS_INPUT(input):
+	print("app.py says hi! [" + input + "]")
+	return "very cool thank you"
+
 def SET_FLAIR(username, flairtext):
 	redditUser = reddit.redditor(username)
 	sub.flair.set(redditUser, "test", css_class = "userorange")  # this is because reddit's api is being weird and doing weird things...
 	sub.flair.set(redditUser, flairtext, css_class = "usergreen")
 	
 
+def START_DISCORD_BOT():
+	TOKEN = open(open("locd.txt", "r").readline().strip(), "r").readline().strip()
+
+	bot = commands.Bot(command_prefix='bot ')
+
+	@bot.command(name='input')
+	@commands.has_role('plantfriend')
+	async def inputReview(ctx, username: str, rating: int, url: str):
+		result = PROCESS_INPUT(username + " " + str(rating) + " " + url)
+		#await ctx.send("Success! Username = " + username + ", rating = " + str(rating) + ", url = " + url)
+		await ctx.send(result)
+
+	@inputReview.error
+	async def inputReviewError(ctx, error):
+		if isinstance(error, commands.errors.CheckFailure):
+			await ctx.send("Sorry, you don't have permissions!")
+		if isinstance(error, commands.errors.MissingRequiredArgument):
+			await ctx.send("You are missing an argument:\n`input` `USERNAME` `RATING` `URL`.")
+		if isinstance(error, commands.errors.BadArgument):
+			await ctx.send("Ensure correct format:\n`input` `USERNAME` `RATING` `URL`.")
+
+	bot.run(TOKEN)
+
 def main():
 	global reddit
 	reddit = praw.Reddit(client_id = cid, client_secret = csc, password = pwd, user_agent = "/r/TakeaPlantLeaveaPlant Rating Bot by /u/eggpl4nt", username = usn)
+
+	START_DISCORD_BOT()
 
 	# Make sure PRAW is working
 	print(reddit.user.me().name + " is ready!")
