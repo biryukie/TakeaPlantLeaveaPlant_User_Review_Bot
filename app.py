@@ -197,7 +197,7 @@ def ADD_USER_RATING(username, rating, url):
 			post.reply(comment)
 		except:
 			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
-			result = "Your command has been executed successfully.\n\n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
+			result = "Your command has been executed successfully.  \n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
 	
 	return result
 
@@ -345,25 +345,47 @@ def GET_CONSOLE_COMMANDS():
 			
 		ADD_USER_RATING(redditor.name, rating, url)
 
-def PROCESS_INPUT(input):
-	print("app.py says hi! [" + input + "]")
-	return "very cool thank you"
+def PROCESS_DISCORD_INPUT(username, rating, url):
+	result = ""
+
+	redditor = reddit.redditor(username)
+
+	try:
+		validCheck = redditor.id
+	except:
+		result = ":wilted_rose: Could not find username [`" + username + "`], please verify correct username and try again."
+		#print(result)
+		return result
+
+	try:
+		if float(rating) < 0 or float(rating) > 5:
+			result = ":wilted_rose: Rating must be between 0 and 5, please verify rating and try again."
+			#print(result)
+			return result
+	except:
+			result = ":wilted_rose: Rating must be between 0 and 5, please verify rating and try again."
+			#print(result)
+			return result
+
+	result = ":sunflower: " + ADD_USER_RATING(redditor.name, rating, url)
+	#print(result)
+	return result
 
 def SET_FLAIR(username, flairtext):
 	redditUser = reddit.redditor(username)
-	sub.flair.set(redditUser, "test", css_class = "userorange")  # this is because reddit's api is being weird and doing weird things...
+	#sub.flair.set(redditUser, "test", css_class = "userorange")  # this is because reddit's api is being weird and doing weird things...
 	sub.flair.set(redditUser, flairtext, css_class = "usergreen")
 	
 
 def START_DISCORD_BOT():
 	TOKEN = open(open("locd.txt", "r").readline().strip(), "r").readline().strip()
 
-	bot = commands.Bot(command_prefix='bot ')
+	bot = commands.Bot(command_prefix='bot')
 
-	@bot.command(name='input')
+	@bot.command(name='r')
 	@commands.has_role('plantfriend')
-	async def inputReview(ctx, username: str, rating: int, url: str):
-		result = PROCESS_INPUT(username + " " + str(rating) + " " + url)
+	async def inputReview(ctx, username: str, rating: str, url: str):
+		result = "`" + username + "` `" + rating + "` `" + url + "`\n" + PROCESS_DISCORD_INPUT(username, rating, url)
 		#await ctx.send("Success! Username = " + username + ", rating = " + str(rating) + ", url = " + url)
 		await ctx.send(result)
 
@@ -382,8 +404,6 @@ def main():
 	global reddit
 	reddit = praw.Reddit(client_id = cid, client_secret = csc, password = pwd, user_agent = "/r/TakeaPlantLeaveaPlant Rating Bot by /u/eggpl4nt", username = usn)
 
-	START_DISCORD_BOT()
-
 	# Make sure PRAW is working
 	print(reddit.user.me().name + " is ready!")
 
@@ -393,7 +413,8 @@ def main():
 
 	# Perform commands
 	#CHECK_PMS()  # For server mode
-	GET_CONSOLE_COMMANDS()  # For manual mode
+	#GET_CONSOLE_COMMANDS()  # For manual mode
+	START_DISCORD_BOT()
 
 if __name__ == '__main__':
     main()
