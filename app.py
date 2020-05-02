@@ -390,10 +390,7 @@ def START_DISCORD_BOT():
 	@bot.command(name='r')
 	@commands.has_role('plantfriend')
 	async def inputReview(ctx, username: str, rating: str, url: str):
-		print("big test time")
-		#loop = asyncio.get_event_loop()  ## get_running_loop breaks 
 		result = ""
-
 		async with FILE_LOCK:
 			result = "`" + username + "` `" + rating + "` `" + url + "`\n" + await ctx.bot.loop.run_in_executor(None, PROCESS_DISCORD_INPUT, username, rating, url)
 
