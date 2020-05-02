@@ -1,4 +1,5 @@
 import os
+import asyncio
 import utils
 
 import discord
@@ -18,6 +19,9 @@ class Review(Enum):
 global THE_FILE
 THE_FILE = "userReviews_test_sept_2019.txt"
 
+global FILE_LOCK
+FILE_LOCK = asyncio.Lock()
+
 credentials = open(open("loc.txt", "r").readline().strip(), "r")
 
 cid = credentials.readline().strip()
@@ -28,12 +32,13 @@ pwd = credentials.readline().strip()
 def ADD_USER_RATING(username, rating, url):
 	# get the wikipage
 	directory = (utils.GET_DIRECTORY(username[0].lower()))
+	filepath = directory + ".txt"
 	page = sub.wiki["userdirectory/" + directory]
-	file = open(THE_FILE, "wb")
+	file = open(filepath, "wb")
 	file.write(page.content_md.encode("utf-8"))
 	file.close()
 
-	f = open(THE_FILE, "r", encoding = "utf-8")
+	f = open(filepath, "r", encoding = "utf-8")
 	contents = f.readlines()
 	f.close()
 
@@ -380,13 +385,18 @@ def SET_FLAIR(username, flairtext):
 def START_DISCORD_BOT():
 	TOKEN = open(open("locd.txt", "r").readline().strip(), "r").readline().strip()
 
-	bot = commands.Bot(command_prefix='bot')
+	bot = commands.Bot(command_prefix=',')
 
 	@bot.command(name='r')
 	@commands.has_role('plantfriend')
 	async def inputReview(ctx, username: str, rating: str, url: str):
-		result = "`" + username + "` `" + rating + "` `" + url + "`\n" + PROCESS_DISCORD_INPUT(username, rating, url)
-		#await ctx.send("Success! Username = " + username + ", rating = " + str(rating) + ", url = " + url)
+		print("big test time")
+		#loop = asyncio.get_event_loop()  ## get_running_loop breaks 
+		result = ""
+
+		async with FILE_LOCK:
+			result = "`" + username + "` `" + rating + "` `" + url + "`\n" + await ctx.bot.loop.run_in_executor(None, PROCESS_DISCORD_INPUT, username, rating, url)
+
 		await ctx.send(result)
 
 	@inputReview.error
