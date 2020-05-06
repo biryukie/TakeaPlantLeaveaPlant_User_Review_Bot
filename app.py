@@ -17,7 +17,7 @@ class Review(Enum):
     SALE = 2
 
 global THE_FILE
-THE_FILE = "userReviews_test_sept_2019.txt"
+THE_FILE = "tempReviewWikipg.txt"
 
 global FILE_LOCK
 FILE_LOCK = asyncio.Lock()
@@ -32,7 +32,7 @@ pwd = credentials.readline().strip()
 def ADD_USER_RATING(username, rating, url):
 	# get the wikipage
 	directory = (utils.GET_DIRECTORY(username[0].lower()))
-	filepath = directory + ".txt"
+	filepath = THE_FILE
 	page = sub.wiki["userdirectory/" + directory]
 	file = open(filepath, "wb")
 	file.write(page.content_md.encode("utf-8"))
@@ -215,10 +215,15 @@ def GET_REVIEW_TYPE(url):
 	"""
 	try:
 		comment = reddit.comment(url = url)
+		commentBody = (str(comment.body)).strip().lower()
 		#print("{" + comment.body + "}")
-		if (str(comment.body)).strip().lower().startswith("[trade]"):
+		if commentBody.startswith("[trade]"):
 			return Review.TRADE
-		if (str(comment.body)).strip().lower().startswith("[sale]"):
+		if commentBody.startswith("[sale]"):
+			return Review.SALE
+		if ("[trade]" in commentBody) or ("(trade)" in commentBody):
+			return Review.TRADE
+		if ("[sale]" in commentBody) or ("(sale)" in commentBody):
 			return Review.SALE
 	except:
 		try:
