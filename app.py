@@ -217,9 +217,9 @@ def GET_REVIEW_TYPE(url):
 		comment = reddit.comment(url = url)
 		commentBody = (str(comment.body)).strip().lower()
 		#print("{" + comment.body + "}")
-		if commentBody.startswith("[trade]"):
+		if commentBody.startswith("[trade]") or commentBody.startswith("(trade)") or commentBody.startswith("**\[trade\]"):
 			return Review.TRADE
-		if commentBody.startswith("[sale]"):
+		if commentBody.startswith("[sale]") or commentBody.startswith("(sale)") or commentBody.startswith("**\[sale\]"):
 			return Review.SALE
 		if ("[trade]" in commentBody) or ("(trade)" in commentBody):
 			return Review.TRADE
