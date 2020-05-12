@@ -16,6 +16,11 @@ class Review(Enum):
     TRADE = 1
     SALE = 2
 
+class Submission(Enum):
+    INVALID = 0
+    POST = 1
+    COMMENT = 2
+
 global THE_FILE
 THE_FILE = "tempReviewWikipg.txt"
 
@@ -61,14 +66,25 @@ def ADD_USER_RATING(username, rating, url):
 	reviews = list()
 	ratingIndex = -1
 
-	# See if it is a trade, sale, or uknown
-	reviewType = GET_REVIEW_TYPE(url)
+	# Check if the URL is valid and get the submission type
+	submissionType = GET_SUBMISSION_TYPE(url)
+
+	# See if the URL is a trade, sale, or unknown
+	reviewType = GET_REVIEW_TYPE(url, submissionType)
 	reviewTypeText = ""
 
 	if reviewType == Review.TRADE:
 		reviewTypeText = "Trade"
 	elif reviewType == Review.SALE:
 		reviewTypeText = "Sale"
+
+	# Set the Comment or Submission object for the review we're inputting
+	givenContent = "";
+
+	if submissionType == Submission.COMMENT:
+		givenContent = reddit.comment(url = url)
+	if submissionType == Submission.POST:
+		givenContent = reddit.submission(url = url)
 
 	if userFound:
 		ratingIndex = i + 1
@@ -81,42 +97,26 @@ def ADD_USER_RATING(username, rating, url):
 
 		while contents[firstReviewIndex + numOfReviews].find("|") != -1:
 			reviews.append(((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[1])  # [1] because Python likes to have [0] be newline. epic.
-			storedUrl = ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[3]
-			isUrlComment = -1
-			isStoredComment = -1
-			post1 = ""
-			post2 = ""
-			# set the given url to comment/submission/other
-			try:
-				post1 = reddit.comment(url = url)
-				isUrlComment = 1
-			except:
-				try:
-					post1 = reddit.submission(url = url)
-					isUrlComment = 0
-				except:
-					isUrlComment = -1
-			# set the stored url to comment/submission/other
-			try:
-				post2 = reddit.comment(url = storedUrl)
-				isStoredComment = 1
-			except:
-				try:
-					post2 = reddit.submission(url = storedUrl)
-					isStoredComment = 0
-				except:
-					isStoredComment = -1
-			# check if they're both a comment or a submission, then check if they're both the same or not
-			if isUrlComment == 1 and isStoredComment == 1:  # both comments
-				if post1.id == post2.id:
-					print("    [!] NOTICE: Duplicate comment URL, not inputting review")
-					result = "Your command was **not** executed, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
-					return result
-			if isUrlComment == 0 and isStoredComment == 0:  # both submissions
-				if post1.id == post2.id:
-					print("    [!] NOTICE: Duplicate submission URL, not inputting review")
-					result = "Your command was **not** executed, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
-					return result
+			storedUrl = ((contents[firstReviewIndex + numOfReviews].strip()).replace(" ", "")).split("|")[3]  # If more columns are ever added, be sure to update this index.
+			storedContent = ""
+
+			storedSubmissionType = GET_SUBMISSION_TYPE(storedUrl)
+
+			if storedSubmissionType != Submission.INVALID and submissionType == storedSubmissionType:
+				if storedSubmissionType == Submission.COMMENT:
+					storedContent = reddit.comment(url = storedUrl)
+					if givenContent.id == storedContent.id:
+						print("    [!] NOTICE: Duplicate comment URL, not inputting review")
+						result = "Your command was **not** executed, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
+						return result
+				if storedSubmissionType == Submission.POST:
+					storedContent = reddit.submission(url = storedUrl)
+					if givenContent.id == storedContent.id:
+						print("    [!] NOTICE: Duplicate submission URL, not inputting review")
+						result = "Your command was **not** executed, duplicate review submission. If this error is incorrect, please contact /u/eggpl4nt."
+						return result
+			
+			# Increase the count of reviews for this user
 			numOfReviews += 1
 		
 		insertionIndex = firstReviewIndex + len(reviews)
@@ -189,43 +189,63 @@ def ADD_USER_RATING(username, rating, url):
 
 	#leave a comment on the post
 	comment = "Your review for `" + username + "` has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([This is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
-	try:
-		post = reddit.comment(url = url)
-		post.reply(comment)
-	except:
-		try:
-			post = reddit.submission(url = url)
-			if reviewType == Review.TRADE:
-				post.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
-			if reviewType == Review.SALE:
-				post.flair.select('6c2e82e0-89d2-11ea-b090-0e642cf8d7e9', ':star: Sale Review')
-			post.reply(comment)
-		except:
-			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
-			result = "Your command has been executed successfully.  \n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
 	
+	if submissionType == Submission.COMMENT:
+		givenContent.reply(comment)
+	elif submissionType == Submission.POST:
+		if reviewType == Review.TRADE:
+			givenContent.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
+		if reviewType == Review.SALE:
+			givenContent.flair.select('6c2e82e0-89d2-11ea-b090-0e642cf8d7e9', ':star: Sale Review')
+		givenContent.reply(comment)
+	else:
+		print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
+		result = "Your command has been executed successfully.  \n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
+
 	return result
 
-def GET_REVIEW_TYPE(url):
+def GET_SUBMISSION_TYPE(url):
+	try:
+		comment = reddit.comment(url = url)
+		return Submission.COMMENT
+	except:
+		try:
+			submission = reddit.submission(url = url)
+			return Submission.POST
+		except:
+			return Submission.INVALID
+
+	# Fall through to invalid
+	return Submission.INVALID
+
+def GET_REVIEW_TYPE(url, submissionType):
 	"""Figures out which Review enum value the post/comment is.
 	Args:
 		url: the comment/post URL to examine
+		submissionType: the Enum Submission value
 	Returns:
 		The Review Enum value 
 	"""
-	try:
-		comment = reddit.comment(url = url)
-		commentBody = (str(comment.body)).strip().lower()
-		#print("{" + comment.body + "}")
-		if commentBody.startswith("[trade]") or commentBody.startswith("(trade)") or commentBody.startswith("**\[trade\]"):
-			return Review.TRADE
-		if commentBody.startswith("[sale]") or commentBody.startswith("(sale)") or commentBody.startswith("**\[sale\]"):
-			return Review.SALE
-		if ("[trade]" in commentBody) or ("(trade)" in commentBody):
-			return Review.TRADE
-		if ("[sale]" in commentBody) or ("(sale)" in commentBody):
-			return Review.SALE
-	except:
+	if submissionType == Submission.INVALID:
+		return Review.UNKNOWN
+
+	if submissionType == Submission.COMMENT:
+		try:
+			comment = reddit.comment(url = url)
+			commentBody = (str(comment.body)).strip().replace("\\","").replace("*","").replace("_","").lower()
+			#print("{" + comment.body + "}")
+			if commentBody.startswith("[trade]") or commentBody.startswith("(trade)"):
+				return Review.TRADE
+			if commentBody.startswith("[sale]") or commentBody.startswith("(sale)"):
+				return Review.SALE
+			if ("[trade]" in commentBody) or ("(trade)" in commentBody):
+				return Review.TRADE
+			if ("[sale]" in commentBody) or ("(sale)" in commentBody):
+				return Review.SALE
+		except:
+			return Review.UNKNOWN
+
+	if submissionType == Submission.POST:
 		try:
 			submission = reddit.submission(url = url)
 			#print("{" + submission.link_flair_text + "}")
@@ -234,7 +254,6 @@ def GET_REVIEW_TYPE(url):
 			if "Sale Review" in submission.link_flair_text:
 				return Review.SALE
 		except:
-			#print("submission unknown")
 			return Review.UNKNOWN
 
 	# Fall through to unknown
