@@ -371,6 +371,9 @@ def GET_CONSOLE_COMMANDS():
 			continue
 
 		url = userInput[2]
+
+		if not url.startswith("https://"):
+			url = "https://" + url
 			
 		ADD_USER_RATING(redditor.name, rating, url)
 
@@ -395,6 +398,9 @@ def PROCESS_DISCORD_INPUT(username, rating, url):
 			result = ":wilted_rose: Rating must be between 0 and 5, please verify rating and try again."
 			#print(result)
 			return result
+
+	if not url.startswith("https://"):
+		url = "https://" + url
 
 	result = ":sunflower: " + ADD_USER_RATING(redditor.name, rating, url)
 	#print(result)
@@ -423,11 +429,11 @@ def START_DISCORD_BOT():
 	@inputReview.error
 	async def inputReviewError(ctx, error):
 		if isinstance(error, commands.errors.CheckFailure):
-			await ctx.send("Sorry, you don't have permissions!")
+			await ctx.send(":wilted_rose: Sorry, you don't have permissions!")
 		if isinstance(error, commands.errors.MissingRequiredArgument):
-			await ctx.send("You are missing an argument:\n`input` `USERNAME` `RATING` `URL`.")
+			await ctx.send(":wilted_rose: You are missing an argument:\n`input` `USERNAME` `RATING` `URL`.")
 		if isinstance(error, commands.errors.BadArgument):
-			await ctx.send("Ensure correct format:\n`input` `USERNAME` `RATING` `URL`.")
+			await ctx.send(":wilted_rose: Ensure correct format:\n`input` `USERNAME` `RATING` `URL`.")
 
 	bot.run(TOKEN)
 
