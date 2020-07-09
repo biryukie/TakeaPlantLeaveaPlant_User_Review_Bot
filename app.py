@@ -190,17 +190,23 @@ def ADD_USER_RATING(username, rating, url):
 	#leave a comment on the post
 	comment = "Your review for `" + username + "` has been added to the [User Review Directory](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory).\n\n----\n\n^([This is an automated message.])  \n[^(About User Reviews)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userreviews) ^(|) [^(User Review Directory)](https://www.reddit.com/r/TakeaPlantLeaveaPlant/wiki/userdirectory) ^(|) [^(Message the Moderation Team)](https://www.reddit.com/message/compose?to=%2Fr%2FTakeaPlantLeaveaPlant)"
 	
-	if submissionType == Submission.COMMENT:
-		givenContent.reply(comment)
-	elif submissionType == Submission.POST:
-		if reviewType == Review.TRADE:
-			givenContent.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
-		if reviewType == Review.SALE:
-			givenContent.flair.select('6c2e82e0-89d2-11ea-b090-0e642cf8d7e9', ':star: Sale Review')
-		givenContent.reply(comment)
-	else:
-		print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
-		result = "Your command has been executed successfully.  \n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
+	try:
+		if submissionType == Submission.COMMENT:
+			givenContent.reply(comment)
+		elif submissionType == Submission.POST:
+			if reviewType == Review.TRADE:
+				givenContent.flair.select('78849dec-aa89-11e8-9f59-0e4fa42e5020', ':star: Trade Review')
+			if reviewType == Review.SALE:
+				givenContent.flair.select('6c2e82e0-89d2-11ea-b090-0e642cf8d7e9', ':star: Sale Review')
+			givenContent.reply(comment)
+		else:
+			print("    [!] NOTICE: submission url invalid, could not leave a review confirmation comment.")
+			result = "Your command has been executed successfully.  \n**Notice:** Submission url was invalid, bot could not leave a review confirmation comment."
+	except Exception as e:
+		exceptionMsg = str(e)
+		print("    [!] NOTICE: Error occurred during sending comment, could not leave a review confirmation comment.")
+		print("        ERROR: " + exceptionMsg)
+		result = "Your command has been executed successfully.  \n**Notice:** Error occurred during sending comment, bot could not leave a review confirmation comment.  \n**Error: **" + exceptionMsg
 
 	return result
 
